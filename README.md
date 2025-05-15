@@ -1,1 +1,1 @@
-# mahjongwaysmaxwin
+# mahjongwaysmaxwiz
