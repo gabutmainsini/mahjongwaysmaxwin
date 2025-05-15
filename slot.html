@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mahjong Ways</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: url('https://i.postimg.cc/c4Y40wBC/HPg-U7484-Kmo-2.jpg') center/cover no-repeat fixed;
+      color: #fff;
+      text-align: center;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 10px;
+    }
+    .reels {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .reel {
+      width: 60px;
+      height: 60px;
+      font-size: 30px;
+      background: #000000aa;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: spin 0.5s ease;
+    }
+    @keyframes spin {
+      0% { transform: rotateX(0deg); }
+      100% { transform: rotateX(360deg); }
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      background: #d72638;
+      color: white;
+    }
+    #adminPanel, #loginForm {
+      display: none;
+      margin-top: 20px;
+      background: #00000099;
+      padding: 10px;
+      border-radius: 10px;
+    }
+    input {
+      padding: 5px;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Mahjong Ways</h1>
+    <p>Saldo: <span id="saldo">0</span></p>
+    <label>Bet: Rp <input type="number" id="bet" value="400" min="400" /></label><br/>
+    <div class="reels" id="reels"></div>
+    <button onclick="spin()">Spin</button>
+    <button onclick="toggleAutoSpin()">Auto Spin</button>
+    <button onclick="openWhatsApp()">Deposit via WA</button>
+    <button onclick="showLogin()">Admin</button>
+
+    <!-- Login Form -->
+    <div id="loginForm">
+      <h3>Login Admin</h3>
+      <input type="text" id="adminUser" placeholder="Username" />
+      <input type="password" id="adminPass" placeholder="Password" />
+      <button onclick="adminLogin()">Login</button>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel">
+      <h3>Panel Admin</h3>
+      <label>Username Tujuan:</label><input id="targetUser" /><br/>
+      <label>Jumlah Saldo:</label><input id="saldoTambah" type="number" /><br/>
+      <button onclick="kirimSaldo()">Kirim Saldo</button>
+      <button onclick="hapusUser()">Hapus User</button>
+      <button onclick="blokirUser()">Blokir</button>
+      <button onclick="bukaBlokir()">Buka Blokir</button><br/><br/>
+
+      <h4>Pengaturan Spin</h4>
+      <select id="winMode">
+        <option value="auto">Acak</option>
+        <option value="forceWin">Paksa Menang</option>
+        <option value="forceLose">Paksa Kalah</option>
+      </select>
+      <button onclick="setWinMode()">Set Mode</button><br/><br/>
+
+      <button onclick="lihatSemuaUser()">Lihat Semua User</button>
+      <pre id="listUser"></pre>
+    </div>
+  </div>
+
+  <script>
+    const symbols = ['🀄','🀙','🀐','🀆','🀃','🀀'];
+    const reels = document.getElementById('reels');
+    const saldoDisplay = document.getElementById('saldo');
+    let saldo = parseInt(localStorage.getItem("saldo")) || 0;
+    let autoSpin = false;
+    let winMode = localStorage.getItem("winMode") || "auto";
+
+    function updateSaldoDisplay() {
+      saldoDisplay.textContent = saldo;
+      localStorage.setItem("saldo", saldo);
+    }
+
+    function hasilMenang() {
+      if (winMode === "forceWin") return true;
+      if (winMode === "forceLose") return false;
+      return Math.random() < 0.5;
+    }
+
+    function spin() {
+      const bet = parseInt(document.getElementById('bet').value);
+      if (bet < 400 || saldo < bet) return alert('Saldo tidak cukup atau bet terlalu kecil!');
+      saldo -= bet;
+      const hasil = [];
+      reels.innerHTML = '';
+      for (let i = 0; i < 6; i++) {
+        const simbol = symbols[Math.floor(Math.random() * symbols.length)];
+        hasil.push(simbol);
+        const div = document.createElement('div');
+        div.className = 'reel';
+        div.textContent = simbol;
+        reels.appendChild(div);
+      }
+
+      const menang = hasilMenang();
+      if (menang) {
+        saldo += bet * 2;
+        alert("MENANG!");
+      } else {
+        alert("KALAH");
+      }
+
+      updateSaldoDisplay();
+      if (autoSpin) setTimeout(spin, 1000);
+    }
+
+    function toggleAutoSpin() {
+      autoSpin = !autoSpin;
+      alert("Auto spin: " + (autoSpin ? "Aktif" : "Mati"));
+      if (autoSpin) spin();
+    }
+
+    function openWhatsApp() {
+      window.open('https://wa.me/6288224274374?text=Halo%20Admin,%20saya%20ingin%20deposit', '_blank');
+    }
+
+    function showLogin() {
+      document.getElementById('loginForm').style.display = 'block';
+    }
+
+    function adminLogin() {
+      const u = document.getElementById("adminUser").value;
+      const p = document.getElementById("adminPass").value;
+      if (u === "admin" && p === "123456") {
+        document.getElementById("adminPanel").style.display = 'block';
+        document.getElementById("loginForm").style.display = 'none';
+      } else {
+        alert("Login gagal");
+      }
+    }
+
+    function kirimSaldo() {
+      const user = document.getElementById("targetUser").value;
+      const amt = parseInt(document.getElementById("saldoTambah").value);
+      const data = JSON.parse(localStorage.getItem("users") || "{}");
+      if (!data[user]) data[user] = { saldo: 0, blokir: false };
+      data[user].saldo += amt;
+      localStorage.setItem("users", JSON.stringify(data));
+      alert("Saldo dikirim ke " + user);
+    }
+
+    function hapusUser() {
+      const user = document.getElementById("targetUser").value;
+      const data = JSON.parse(localStorage.getItem("users") || "{}");
+      delete data[user];
+      localStorage.setItem("users", JSON.stringify(data));
+      alert("User dihapus.");
+    }
+
+    function blokirUser() {
+      const user = document.getElementById("targetUser").value;
+      const data = JSON.parse(localStorage.getItem("users") || "{}");
+      if (!data[user]) data[user] = { saldo: 0, blokir: false };
+      data[user].blokir = true;
+      localStorage.setItem("users", JSON.stringify(data));
+      alert("User diblokir.");
+    }
+
+    function bukaBlokir() {
+      const user = document.getElementById("targetUser").value;
+      const data = JSON.parse(localStorage.getItem("users") || "{}");
+      if (!data[user]) data[user] = { saldo: 0, blokir: false };
+      data[user].blokir = false;
+      localStorage.setItem("users", JSON.stringify(data));
+      alert("User dibuka blokir.");
+    }
+
+    function setWinMode() {
+      winMode = document.getElementById("winMode").value;
+      localStorage.setItem("winMode", winMode);
+      alert("Mode kemenangan diatur ke: " + winMode);
+    }
+
+    function lihatSemuaUser() {
+      const data = JSON.parse(localStorage.getItem("users") || "{}");
+      let teks = "Daftar User:\n";
+      for (let u in data) {
+        teks += `${u} - Saldo: ${data[u].saldo} - Blokir: ${data[u].blokir}\n`;
+      }
+      document.getElementById("listUser").textContent = teks;
+    }
+
+    updateSaldoDisplay();
+  </script>
+</body>
+</html>
