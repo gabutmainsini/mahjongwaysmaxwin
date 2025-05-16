@@ -1,0 +1,99 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: url('https://i.imgur.com/6gWQXzX.jpg') center/cover no-repeat fixed;
+  color: #fff;
+  text-align: center;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+.reels {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.reel {
+  width: 60px;
+  height: 60px;
+  font-size: 30px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: spin 0.5s ease;
+  border: 2px solid gold;
+}
+
+@keyframes spin {
+  0%   { transform: rotateX(0deg); opacity: 0.5; }
+  50%  { transform: rotateX(180deg); opacity: 1; }
+  100% { transform: rotateX(360deg); opacity: 1; }
+}
+
+@keyframes winFlash {
+  0%, 100% { background-color: #28a745; }
+  50% { background-color: #ffffff; color: black; }
+}
+
+@keyframes loseFlash {
+  0%, 100% { background-color: #d72638; }
+  50% { background-color: #000000; color: white; }
+}
+
+.flash-win {
+  animation: winFlash 0.8s ease;
+}
+
+.flash-lose {
+  animation: loseFlash 0.8s ease;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin: 8px 5px;
+  border: none;
+  border-radius: 8px;
+  background: #d72638;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #a91f2f;
+}
+
+input, select {
+  padding: 6px;
+  margin: 5px;
+  border-radius: 6px;
+  border: none;
+}
+
+#adminPanel, #loginForm {
+  display: none;
+  margin-top: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 15px;
+  border-radius: 10px;
+}
+
+pre {
+  background: rgba(255,255,255,0.1);
+  padding: 10px;
+  border-radius: 8px;
+  text-align: left;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
